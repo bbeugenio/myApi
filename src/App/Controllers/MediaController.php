@@ -15,40 +15,45 @@ class MediaController
     public function getPhotoById($id)
     {
         $url = "https://api.instagram.com/v1/tags/nofilter/media/recent?client_id=5fa500be04134056ab745cc48cf0382f&max_tag_id=" . $id;
+        $urlPlaces = "";
         $str = file_get_contents($url);
         $json = json_decode($str, true);
-        //echo '<pre>' . print_r($json, true) . '</pre>';  
-         
-        
-        /*$geo = array($place, $latitude, $longitude);
-        $vec = array($idPhoto, $geo);*/
-        /*
-        $length = count($json['data']);
-        $array = array($length);
-        for ($i = 0; $i <= $length; $i++) {
-            $idPhoto = "Id: " . $id;
-            $latitude = "Latitude: ". $json['data'][$i]['location']['latitude'];  
-            $longitude = "Longitude: ". $json['data'][$i]['location']['longitude'];  
-            $place = "Place: ". $json['data'][$i]['location']['name']; 
-
-           //auxVec = array($latitude,$longitude,$place);
-            //$array($i) = $auxVec;
-        }*/
 
         $idPhoto = $id;
-            $latitude = $json['data'][0]['location']['latitude'];  
-            $longitude = $json['data'][0]['location']['longitude'];  
-            $place = $json['data'][0]['location']['name']; 
+        $latitude = $json['data'][0]['location']['latitude'];  
+        $longitude = $json['data'][0]['location']['longitude'];  
+        
+        $urlPlaces = "https://api.instagram.com/v1/locations/search?lat=".$latitude."&lng=".$longitude. "&client_id=5fa500be04134056ab745cc48cf0382f";
+        $aux = file_get_contents($urlPlaces);
+        $jsonPlaces = json_decode($aux, true);
+        $length = count($jsonPlaces['data']);
 
-            $objeto = new mediaService();
-            $objeto->id = $idPhoto;
-            $objeto->latitud = $latitude;
-            $objeto->longitud = $longitude;
-            $objeto->address = $place;
+        $array = array();
+        for ($i = 0; $i < $length; $i++) {
+            $idPhoto = "";
+            $latitude = "";
+            $longitude = "";  
+            $place = ""; 
 
-            /*$objeto = new mediaService($idPhoto,$latitude,$longitude,$place);
-            $vars = get_object_vars ($objeto);*/
-        return new JsonResponse($objeto->getBruno());
+            $idPhoto = $id;
+            if(!is_null($jsonPlaces['data'][$i]['latitude'] ))
+            {
+                $latitude = $jsonPlaces['data'][$i]['latitude'];  
+            }
+            if(!is_null($jsonPlaces['data'][$i]['longitude'] ))
+            {
+                $longitude = $jsonPlaces['data'][$i]['longitude'];  
+            }
+            if(!is_null($jsonPlaces['data'][$i]['name']))
+            {
+                $address = $jsonPlaces['data'][$i]['name'];  
+            }
+            $objeto = new mediaService($idPhoto,$latitude,$longitude,$address);
+
+            array_push($array, $objeto);
+        }
+
+        return new JsonResponse($array);
     }
 
     public function getJson()

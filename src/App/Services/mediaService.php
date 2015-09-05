@@ -5,28 +5,26 @@ namespace App\Services;
 class mediaService 
 {
     public $id;
-    public $latitud;
-    public $longitud;
+    public $latitude;
+    public $longitude;
     public $address;
-/*
-    public function __construct($id,$latitud,$longitud,$address)
+
+     public function __construct($id,$latitude,$longitude,$address)
     {
         $this->id = $id;
-        $this->latitud = $latitud;
-        $this->longitud = $longitud;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
         $this->address = $address;
-    }*/
-     public function __construct()
-    {
-        $this->id = null;
-        $this->latitud = null;
-        $this->longitud = null;
-        $this->address = null;
     }
 
-    public function getBruno()
+    public function toString()
     {
-        //return $this->id . $this->latitud . $this->longitud . $this->address;
-        return get_object_vars($this);
+        //$aux = $this->id;
+        $aux= "{ " . "\n";
+        $aux.= "Latitude: "  . $this->latitude  . "," . "\r\n". " ";
+        $aux.= "Longitude: ". $this->longitude . "," . "\r\n" . " ";
+        $aux.= "Address: " . $this->address  . "," . "\r\n" . " ";
+        $aux.= "}" . "\r\n";
+        return $aux;
     }
 }
