@@ -18,10 +18,12 @@ class RoutesLoader
     private function instantiateControllers()
     {
     
-        $this->app['media.controller'] = $this->app->share(function () 
-        {
-            return new Controllers\MediaController();
-        });
+        $this->app['media.controller'] = $this->app->share(
+            function () 
+            {
+                return new Controllers\MediaController();
+            }
+        );
     }
 
     public function bindRoutesToControllers()
@@ -31,7 +33,7 @@ class RoutesLoader
         $api->get('/json', "media.controller:getJson");
         $api->get('/photo/{id}', "media.controller:getPhotoById");
 
-        $this->app->mount($this->app["api.endpoint"].'/'/*.$this->app["api.version"]*/, $api);
+        $this->app->mount($this->app["api.endpoint"].'/', $api);
     }
 }
 
