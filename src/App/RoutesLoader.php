@@ -30,8 +30,7 @@ class RoutesLoader
     {
         $api = $this->app["controllers_factory"];
 
-        $api->get('/json', "media.controller:getJson");
-        $api->get('/photo/{id}', "media.controller:getPhotoById");
+        $api->get('/photo/{id}', "media.controller:getInformationPhotoById");
 
         $this->app->mount($this->app["api.endpoint"].'/', $api);
     }

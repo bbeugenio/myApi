@@ -11,15 +11,15 @@ class MediaController
 
     }
 
-    public function getPhotoById($id)
+    public function getInformationPhotoById($id)
     {
-        $url = file_get_contents("https://api.instagram.com/v1/tags/nofilter/media/recent?client_id=5fa500be04134056ab745cc48cf0382f&max_tag_id=" . $id);
+        $url = file_get_contents($this->getURLInstagramPhoto($id));
         $jsonOrg = json_decode($url, true);
 
         $latitude = $jsonOrg['data'][0]['location']['latitude'];  
         $longitude = $jsonOrg['data'][0]['location']['longitude'];  
 
-        $urlPlaces = file_get_contents("https://api.instagram.com/v1/locations/search?lat=".$latitude."&lng=".$longitude. "&client_id=5fa500be04134056ab745cc48cf0382f");
+        $urlPlaces = file_get_contents($this->getURLInstagramNearestPlaces($latitude,$longitude));
         $jsonPlaces = json_decode($urlPlaces, true);
         $length = count($jsonPlaces['data']);
 
@@ -28,6 +28,7 @@ class MediaController
         $longitude = $jsonPlaces['data'][0]['longitude'];
         $namePlace = $jsonPlaces['data'][0]['name'];
         $address = $this->getAddressByLatitudeLongitude($latitude,$longitude);
+        $image = $this->getURLMap($latitude,$longitude);
 
         $arrayMedia = array();
         $arrayMedia['Id'] = $id;
@@ -36,6 +37,7 @@ class MediaController
         $arrayMedia['Location'][0]['Geopoint'][0]['Longitude'] = $longitude;
         $arrayMedia['Location'][0]['Place'][0]['Name'] = $namePlace;
         $arrayMedia['Location'][0]['Place'][0]['Address'] = $address;
+        $arrayMedia['Location'][0]['Map'][0]['Image'] = $image;
 
         $arrayNearest = array();
         $isFirst = true;
@@ -51,6 +53,7 @@ class MediaController
                 $longitude = $jsonPlaces['data'][$i]['longitude'];
                 $namePlace = $jsonPlaces['data'][$i]['name'];
                 $address = $this->getAddressByLatitudeLongitude($latitude,$longitude);
+                $image = $this->getURLMap($latitude,$longitude);
 
                 $arrayMyNearest = array(); 
                 $arrayMyNearest['Location'][0]['Id'] = $idPlace;
@@ -58,20 +61,53 @@ class MediaController
                 $arrayMyNearest['Location'][0]['Geopoint'][0]['Longitude'] = $longitude;
                 $arrayMyNearest['Location'][0]['Place'][0]['Name'] = $namePlace;
                 $arrayMyNearest['Location'][0]['Place'][0]['Address'] = $address;
+                $arrayMyNearest['Location'][0]['Map'][0]['Image'] = $image;
                 
                 array_push($arrayNearest, $arrayMyNearest);
             }
         }
+        $arrayMedia['General Map'] = $this->getAllGeopointsURLMap($arrayMedia,$arrayNearest);
         $arrayMedia['Nearest Places'] = $arrayNearest;
 
         return new JsonResponse($arrayMedia);
     }
 
-    public function getAddressByLatitudeLongitude($latitude, $longitude)
+    private function getAddressByLatitudeLongitude($latitude, $longitude)
     {
         $urlAddress = file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?latlng=".$latitude.",".$longitude."&sensor=true");
         $json = json_decode($urlAddress, true);
         $address = $json['results'][0]['formatted_address'];  
         return $address;
+    }
+
+    private function getURLInstagramPhoto($id)
+    {
+        $urlPhoto = "https://api.instagram.com/v1/tags/nofilter/media/recent?client_id=5fa500be04134056ab745cc48cf0382f&max_tag_id=" . $id;
+        return $urlPhoto;
+    }
+
+    private function getURLInstagramNearestPlaces($latitude, $longitude)
+    {
+        $urlPlaces = "https://api.instagram.com/v1/locations/search?lat=". $latitude ."&lng=". $longitude ."&client_id=5fa500be04134056ab745cc48cf0382f";
+        return $urlPlaces;
+    }
+
+    private function getURLMap($latitude, $longitude)
+    {
+        $urlMap = "http://maps.googleapis.com/maps/api/staticmap?center=". $latitude .",". $longitude ."&zoom=15&scale=false&size=640x480&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C". $latitude. ",". $longitude;
+        return $urlMap;
+    }
+
+    private function getAllGeopointsURLMap($arrayMedia,$arrayNearest)
+    {
+        $urlMap = "http://maps.googleapis.com/maps/api/staticmap?center=".$arrayMedia['Location'][0]['Geopoint'][0]['Latitude'].",".$arrayMedia['Location'][0]['Geopoint'][0]['Longitude']."&zoom=15&scale=false&size=640x480&maptype=roadmap&format=png&visual_refresh=true&";
+        $urlMap.= "markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C". $arrayMedia['Location'][0]['Geopoint'][0]['Latitude']. "," .$arrayMedia['Location'][0]['Geopoint'][0]['Longitude']. "&";
+
+        for($i = 0; $i < count($arrayNearest);$i++)
+        {
+            $urlMap.= "markers=size:mid%7Ccolor:0x2dbd02%7Clabel:-%7C". $arrayNearest[$i]['Location'][0]['Geopoint'][0]['Latitude']. ",". $arrayNearest[$i]['Location'][0]['Geopoint'][0]['Longitude'] ."&";
+        }
+        $urlMap = rtrim($urlMap,"&");
+        return $urlMap;
     }
 }
