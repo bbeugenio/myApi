@@ -23,21 +23,21 @@ class MediaController
         $jsonPlaces = json_decode($urlPlaces, true);
         $length = count($jsonPlaces['data']);
 
-        $idPlace = $jsonPlaces['data'][0]['id'];
-        $latitude = $jsonPlaces['data'][0]['latitude'];  
-        $longitude = $jsonPlaces['data'][0]['longitude'];
-        $namePlace = $jsonPlaces['data'][0]['name'];
-        $address = $this->getAddressByLatitudeLongitude($latitude,$longitude);
-        $image = $this->getURLMap($latitude,$longitude);
+        $idPlacePhoto = $jsonPlaces['data'][0]['id'];
+        $latitudePhoto = $jsonPlaces['data'][0]['latitude'];  
+        $longitudePhoto = $jsonPlaces['data'][0]['longitude'];
+        $namePlacePhoto = $jsonPlaces['data'][0]['name'];
+        $addressPhoto = $this->getAddressByLatitudeLongitude($latitudePhoto,$longitudePhoto);
+        $imagePhoto = $this->getURLMapLocation($latitudePhoto,$longitudePhoto);
 
         $arrayMedia = array();
         $arrayMedia['Id'] = $id;
-        $arrayMedia['Location'][0]['Id'] = $idPlace;
-        $arrayMedia['Location'][0]['Geopoint'][0]['Latitude'] = $latitude;
-        $arrayMedia['Location'][0]['Geopoint'][0]['Longitude'] = $longitude;
-        $arrayMedia['Location'][0]['Place'][0]['Name'] = $namePlace;
-        $arrayMedia['Location'][0]['Place'][0]['Address'] = $address;
-        $arrayMedia['Location'][0]['Map'][0]['Image'] = $image;
+        $arrayMedia['Location'][0]['Id'] = $idPlacePhoto;
+        $arrayMedia['Location'][0]['Geopoint'][0]['Latitude'] = $latitudePhoto;
+        $arrayMedia['Location'][0]['Geopoint'][0]['Longitude'] = $longitudePhoto;
+        $arrayMedia['Location'][0]['Place'][0]['Name'] = $namePlacePhoto;
+        $arrayMedia['Location'][0]['Place'][0]['Address'] = $addressPhoto;
+        $arrayMedia['Location'][0]['Map'][0]['Image'] = $imagePhoto;
 
         $arrayNearest = array();
         $isFirst = true;
@@ -53,7 +53,7 @@ class MediaController
                 $longitude = $jsonPlaces['data'][$i]['longitude'];
                 $namePlace = $jsonPlaces['data'][$i]['name'];
                 $address = $this->getAddressByLatitudeLongitude($latitude,$longitude);
-                $image = $this->getURLMap($latitude,$longitude);
+                $image = $this->getURLMapRelation($latitudePhoto,$longitudePhoto,$latitude,$longitude);
 
                 $arrayMyNearest = array(); 
                 $arrayMyNearest['Location'][0]['Id'] = $idPlace;
@@ -66,7 +66,7 @@ class MediaController
                 array_push($arrayNearest, $arrayMyNearest);
             }
         }
-        $arrayMedia['General Map'] = $this->getAllGeopointsURLMap($arrayMedia,$arrayNearest);
+        $arrayMedia['General Map'][0]['Image'] = $this->getAllGeopointsURLMap($arrayMedia,$arrayNearest);
         $arrayMedia['Nearest Places'] = $arrayNearest;
 
         return new JsonResponse($arrayMedia);
@@ -92,7 +92,7 @@ class MediaController
         return $urlPlaces;
     }
 
-    private function getURLMap($latitude, $longitude)
+    private function getURLMapLocation($latitude, $longitude)
     {
         $urlMap = "http://maps.googleapis.com/maps/api/staticmap?center=". $latitude .",". $longitude ."&zoom=15&scale=false&size=640x480&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C". $latitude. ",". $longitude;
         return $urlMap;
@@ -108,6 +108,12 @@ class MediaController
             $urlMap.= "markers=size:mid%7Ccolor:0x2dbd02%7Clabel:-%7C". $arrayNearest[$i]['Location'][0]['Geopoint'][0]['Latitude']. ",". $arrayNearest[$i]['Location'][0]['Geopoint'][0]['Longitude'] ."&";
         }
         $urlMap = rtrim($urlMap,"&");
+        return $urlMap;
+    }
+
+    private function getURLMapRelation($latitudePhoto, $longitudePhoto, $nearestLaditude, $nearestLongitude)
+    {
+        $urlMap = "http://maps.googleapis.com/maps/api/staticmap?center=". $latitudePhoto.",".$longitudePhoto."&zoom=15&scale=false&size=640x480&path=color:0x0000ff|weight:5|".$latitudePhoto.",".$longitudePhoto."|".$nearestLaditude.",".$nearestLongitude."&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C".$latitudePhoto.",".$longitudePhoto."&markers=size:mid%7Ccolor:0x2dbd02%7Clabel:-%7C". $nearestLaditude. ",". $nearestLongitude;
         return $urlMap;
     }
 }
