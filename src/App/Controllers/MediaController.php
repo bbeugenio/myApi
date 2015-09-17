@@ -3,6 +3,7 @@
 namespace App\Controllers;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use exception;
+use App\Services\location;
 
 class MediaController
 {
@@ -11,7 +12,6 @@ class MediaController
     {
 
     }
-
     /*** 
         Method: getInformationPhotoById
         Description: This method receives an ID photo from Instagram and returns a Json with a lot of information about the photo ID and the first 19 nearest places. 
@@ -27,27 +27,26 @@ class MediaController
             {
                 if(!is_null($jsonOrg['data'][0]['location']))
                 {
-                    $latitude = $jsonOrg['data'][0]['location']['latitude'];  
-                    $longitude = $jsonOrg['data'][0]['location']['longitude'];  
+                    $latitudePhoto = $jsonOrg['data'][0]['location']['latitude'];  
+                    $longitudePhoto = $jsonOrg['data'][0]['location']['longitude'];  
 
-                    $urlPlaces = file_get_contents($this->getURLInstagramNearestPlaces($latitude,$longitude));
+                    $urlPlaces = file_get_contents($this->getURLInstagramNearestPlaces($latitudePhoto,$longitudePhoto));
                     $jsonPlaces = json_decode($urlPlaces, true);
 
                     $idPlacePhoto = $jsonPlaces['data'][0]['id'];
-                    $latitudePhoto = $jsonPlaces['data'][0]['latitude'];  
-                    $longitudePhoto = $jsonPlaces['data'][0]['longitude'];
                     $namePlacePhoto = $jsonPlaces['data'][0]['name'];
                     $addressPhoto = $this->getAddressByLatitudeLongitude($latitudePhoto,$longitudePhoto);
                     $imagePhoto = $this->getURLMapLocation($latitudePhoto,$longitudePhoto);
 
+                    $locationPhoto = new location($idPlacePhoto,$latitudePhoto,$longitudePhoto,$namePlacePhoto,$addressPhoto,$imagePhoto);
                     $arrayMedia = array();
                     $arrayMedia['Id'] = $id;
-                    $arrayMedia['Location'][0]['Id'] = $idPlacePhoto;
-                    $arrayMedia['Location'][0]['Geopoint'][0]['Latitude'] = $latitudePhoto;
-                    $arrayMedia['Location'][0]['Geopoint'][0]['Longitude'] = $longitudePhoto;
-                    $arrayMedia['Location'][0]['Place'][0]['Name'] = $namePlacePhoto;
-                    $arrayMedia['Location'][0]['Place'][0]['Address'] = $addressPhoto;
-                    $arrayMedia['Location'][0]['Map'][0]['Image'] = $imagePhoto;
+                    $arrayMedia['Location'][0]['Id'] = $locationPhoto->__get("id");
+                    $arrayMedia['Location'][0]['Geopoint'][0]['Latitude'] = $locationPhoto->__get("latitude");
+                    $arrayMedia['Location'][0]['Geopoint'][0]['Longitude'] = $locationPhoto->__get("longitude");
+                    $arrayMedia['Location'][0]['Place'][0]['Name'] = $locationPhoto->__get("name");
+                    $arrayMedia['Location'][0]['Place'][0]['Address'] = $locationPhoto->__get("address");
+                    $arrayMedia['Location'][0]['Map'][0]['Image'] = $locationPhoto->__get("image");
 
                     $arrayNearest = array();
                     $length = count($jsonPlaces['data']);
@@ -61,19 +60,20 @@ class MediaController
                         else
                         {
                             $idPlace = $jsonPlaces['data'][$i]['id'];
-                            $latitude = $jsonPlaces['data'][$i]['latitude'];  
-                            $longitude = $jsonPlaces['data'][$i]['longitude'];
+                            $latitudePlace = $jsonPlaces['data'][$i]['latitude'];  
+                            $longitudePlace = $jsonPlaces['data'][$i]['longitude'];
                             $namePlace = $jsonPlaces['data'][$i]['name'];
-                            $address = $this->getAddressByLatitudeLongitude($latitude,$longitude);
-                            $image = $this->getURLMapRelation($latitudePhoto,$longitudePhoto,$latitude,$longitude);
+                            $addressPlace = $this->getAddressByLatitudeLongitude($latitudePlace,$longitudePlace);
+                            $imagePlace = $this->getURLMapRelation($latitudePhoto,$longitudePhoto,$latitudePlace,$longitudePlace);
 
+                            $locationPlace = new location($idPlace,$latitudePlace,$longitudePlace,$namePlace,$addressPlace,$imagePlace);
                             $arrayMyNearest = array(); 
-                            $arrayMyNearest['Location'][0]['Id'] = $idPlace;
-                            $arrayMyNearest['Location'][0]['Geopoint'][0]['Latitude'] = $latitude;
-                            $arrayMyNearest['Location'][0]['Geopoint'][0]['Longitude'] = $longitude;
-                            $arrayMyNearest['Location'][0]['Place'][0]['Name'] = $namePlace;
-                            $arrayMyNearest['Location'][0]['Place'][0]['Address'] = $address;
-                            $arrayMyNearest['Location'][0]['Map'][0]['Image'] = $image;
+                            $arrayMyNearest['Location'][0]['Id'] = $locationPlace->__get("id");
+                            $arrayMyNearest['Location'][0]['Geopoint'][0]['Latitude'] = $locationPlace->__get("latitude");
+                            $arrayMyNearest['Location'][0]['Geopoint'][0]['Longitude'] = $locationPlace->__get("longitude");
+                            $arrayMyNearest['Location'][0]['Place'][0]['Name'] = $locationPlace->__get("name");
+                            $arrayMyNearest['Location'][0]['Place'][0]['Address'] = $locationPlace->__get("address");
+                            $arrayMyNearest['Location'][0]['Map'][0]['Image'] = $locationPlace->__get("image");
                             
                             array_push($arrayNearest, $arrayMyNearest);
                         }

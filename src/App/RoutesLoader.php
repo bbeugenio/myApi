@@ -29,7 +29,6 @@ class RoutesLoader
     public function bindRoutesToControllers()
     {
         $api = $this->app["controllers_factory"];
-
         $api->get('/photo/{id}', "media.controller:getInformationPhotoById");
 
         $this->app->mount($this->app["api.endpoint"].'/', $api);
