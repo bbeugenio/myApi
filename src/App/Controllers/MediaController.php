@@ -40,6 +40,7 @@ class MediaController
 
                     $locationPhoto = new location($idPlacePhoto,$latitudePhoto,$longitudePhoto,$namePlacePhoto,$addressPhoto,$imagePhoto);
                     $arrayMedia = array();
+                    $arrayMedia['Status'] = 200;
                     $arrayMedia['Id'] = $id;
                     $arrayMedia['Location'][0]['Id'] = $locationPhoto->__get("id");
                     $arrayMedia['Location'][0]['Geopoint'][0]['Latitude'] = $locationPhoto->__get("latitude");
