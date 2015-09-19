@@ -1,7 +1,5 @@
 # My first experience using php
 
-[![php >= 5.4](https://secure.php.net)]
-
 Hi everyone, I made a service that shows a JSON with many information about a Location of a photo uploaded to Instagram. e.g. Latitude, Longitude, Address, place's Name, and a static Map of the photo.
 Then its shows some nearest places, giving the same information. The maps are a little bit different here. They mark the location of the photo on red and the neareast place with green showing the road between them.
 Also we have another map. This is a general map that shows the location on the photo(red point) and all the nearest places with green.
