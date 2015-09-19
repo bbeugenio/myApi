@@ -9,3 +9,4 @@ env:
 before_script:
   - wget http://getcomposer.org/composer.phar
   - composer install --prefer-source
+  
