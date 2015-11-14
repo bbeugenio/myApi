@@ -17,9 +17,9 @@ class RoutesLoader
 
     private function instantiateControllers()
     {
-    
+    	$application = $this->app;
         $this->app['media.controller'] = $this->app->share(
-            function () 
+            function ()
             {
                 return new Controllers\MediaController();
             }
