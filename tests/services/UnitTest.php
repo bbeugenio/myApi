@@ -10,7 +10,7 @@ use App\Services\location;
 use App\Controllers\MediaController;
 
 
-class unitTests extends \PHPUnit_Framework_TestCase
+class UnitTest extends \PHPUnit_Framework_TestCase
 {
     /***
         Method: testGeopointClass

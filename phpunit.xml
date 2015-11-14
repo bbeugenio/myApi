@@ -14,8 +14,8 @@
         <log type="tap"/>
     </logging>
     <testsuites>
-        <testsuite name="angularjs-silex-single-page-app Test Suite">
-            <directory>./tests</directory>
+        <testsuite name="myApi Tests">
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>
