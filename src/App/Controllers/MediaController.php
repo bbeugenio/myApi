@@ -4,7 +4,7 @@ namespace App\Controllers;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use GuzzleHttp\Client;
 use Exception;
-use App\Services\location;
+use App\Services\Location;
 
 class MediaController
 {

@@ -8,7 +8,7 @@ class RoutesLoader
 {
     private $app;
 
-    public function __construct(Application $app)
+    public function __construct($app)
     {
         $this->app = $app;
         $this->instantiateControllers();
