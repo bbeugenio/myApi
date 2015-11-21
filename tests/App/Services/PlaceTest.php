@@ -12,14 +12,14 @@ class PlaceTest extends \PHPUnit_Framework_TestCase
 	***/
 	public function testPlaceClass()
 	{
-		$olapicName = "Olapic Argentina S.A";
-		$olapicAddress = "Santiago Derqui 33, Córdoba, Argentina";
+		$olapic_name = "Olapic Argentina S.A";
+		$olapic_address = "Santiago Derqui 33, Córdoba, Argentina";
 
 		$place = new Place();
-		$place->__set("name",$olapicName);
-		$place->__set("address",$olapicAddress);
+		$place->__set("name",$olapic_name);
+		$place->__set("address",$olapic_address);
 
-		$this->assertEquals($olapicName, $place->__get("name"));
-		$this->assertEquals($olapicAddress, $place->__get("address"));
+		$this->assertEquals($olapic_name, $place->__get("name"));
+		$this->assertEquals($olapic_address, $place->__get("address"));
 	}
 }

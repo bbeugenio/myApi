@@ -22,8 +22,8 @@ $app->register(new MonologServiceProvider(), array(
     "monolog.name" => "application"
 ));
 
-$routesLoader = new App\RoutesLoader($app);
-$routesLoader->bindRoutesToControllers();
+$routes_loader = new App\RoutesLoader($app);
+$routes_loader->bindRoutesToControllers();
 
 $app->error(function ($e, $code) use ($app) {
     $app['monolog']->addError($e->getMessage());

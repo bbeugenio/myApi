@@ -12,14 +12,14 @@ class GeopointTest extends \PHPUnit_Framework_TestCase
     ***/
     public function testGeopointClass()
     {
-        $olapicLatitude = "-31.4256195";
-        $olapicLongitude = "-64.1876011";
+        $olapic_latitude = "-31.4256195";
+        $olapic_longitude = "-64.1876011";
 
         $geopoint = new Geopoint();
-        $geopoint->__set("latitude",$olapicLatitude);
-        $geopoint->__set("longitude",$olapicLongitude);
+        $geopoint->__set("latitude",$olapic_latitude);
+        $geopoint->__set("longitude",$olapic_longitude);
 
-        $this->assertEquals($olapicLatitude, $geopoint->__get("latitude"));
-        $this->assertEquals($olapicLongitude, $geopoint->__get("longitude"));
+        $this->assertEquals($olapic_latitude, $geopoint->__get("latitude"));
+        $this->assertEquals($olapic_longitude, $geopoint->__get("longitude"));
     }
 }

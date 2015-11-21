@@ -12,8 +12,9 @@ class MediaControllerTest extends \PHPUnit_Framework_TestCase
 	***/
 	public function testMediaControllerClass()
 	{
-		$mediaController = new MediaController();
-		$json = $mediaController->getInformationPhotoById("1062276093275560411");
+		$media_controller = new MediaController();
+		//$json = $media_controller->getInformationPhotoById("1062276093275560411");
+		$json = $media_controller->getInformationPhotoById();
 		$this->assertNotNull($json);
 
 		$succesful = true;

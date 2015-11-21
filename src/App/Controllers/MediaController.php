@@ -8,6 +8,7 @@ use App\Services\Location;
 
 class MediaController
 {
+	private $token_id;
 
     public function __construct()
     {
@@ -15,71 +16,72 @@ class MediaController
     }
     /***
         Method: getInformationPhotoById
-        Description: This method receives an ID photo from Instagram and returns a Json with a lot of information about the photo ID and the first 19 nearest places.
+        Description: This method receives an ID photo and a Token ID from Instagram and returns a Json with a lot of information about the photo ID and the first 19 nearest places.
     ***/
-    public function getInformationPhotoById($id)
+    public function getInformationPhotoById($id,$token_id)
     {
+    	$this->token_id = $token_id;
         $client = new Client();
 		$url = $client->request('GET', $this->getURLInstagramPhoto($id), ['verify' => false]);
-		$jsonOrg = json_decode((string)$url->getBody(), true);
-        if($jsonOrg['meta']['code'] == 200)
+		$json_org = json_decode((string)$url->getBody(), true);
+        if($json_org['meta']['code'] == 200)
         {
-            if(!is_null($jsonOrg['data'][0]['location']))
+            if(!is_null($json_org['data'][0]['location']))
             {
-                $latitudePhoto = $jsonOrg['data'][0]['location']['latitude'];
-                $longitudePhoto = $jsonOrg['data'][0]['location']['longitude'];
+                $latitude_photo = $json_org['data'][0]['location']['latitude'];
+                $longitude_photo = $json_org['data'][0]['location']['longitude'];
 
-				$urlPlaces = $client->request('GET', $this->getURLInstagramNearestPlaces($latitudePhoto,$longitudePhoto), ['verify' => false]);
-                $jsonPlaces = json_decode((string)$urlPlaces->getBody(), true);
+				$url_places = $client->request('GET', $this->getURLInstagramNearestPlaces($latitude_photo,$longitude_photo), ['verify' => false]);
+                $json_places = json_decode((string)$url_places->getBody(), true);
 
-                $idPlacePhoto = $jsonPlaces['data'][0]['id'];
-                $namePlacePhoto = $jsonPlaces['data'][0]['name'];
-                $addressPhoto = $this->getAddressByLatitudeLongitude($latitudePhoto,$longitudePhoto);
-                $imagePhoto = $this->getURLMapLocation($latitudePhoto,$longitudePhoto);
+                $id_place_photo = $json_places['data'][0]['id'];
+                $name_place_photo = $json_places['data'][0]['name'];
+                $address_photo = $this->getAddressByLatitudeLongitude($latitude_photo,$longitude_photo);
+                $image_photo = $this->getURLMapLocation($latitude_photo,$longitude_photo);
 
-                $locationPhoto = new location($idPlacePhoto,$latitudePhoto,$longitudePhoto,$namePlacePhoto,$addressPhoto,$imagePhoto);
-                $arrayMedia = array();
-                $arrayMedia['Status'] = 200;
-                $arrayMedia['Id'] = $id;
-                $arrayMedia['Location'][0]['Id'] = $locationPhoto->__get("id");
-                $arrayMedia['Location'][0]['Geopoint'][0]['Latitude'] = $locationPhoto->__get("latitude");
-                $arrayMedia['Location'][0]['Geopoint'][0]['Longitude'] = $locationPhoto->__get("longitude");
-                $arrayMedia['Location'][0]['Place'][0]['Name'] = $locationPhoto->__get("name");
-                $arrayMedia['Location'][0]['Place'][0]['Address'] = $locationPhoto->__get("address");
-                $arrayMedia['Location'][0]['Map'][0]['Image'] = $locationPhoto->__get("image");
+                $location_photo = new location($id_place_photo,$latitude_photo,$longitude_photo,$name_place_photo,$address_photo,$image_photo);
+                $array_media = array();
+                $array_media['Status'] = 200;
+                $array_media['Id'] = $id;
+                $array_media['Location'][0]['Id'] = $location_photo->__get("id");
+                $array_media['Location'][0]['Geopoint'][0]['Latitude'] = $location_photo->__get("latitude");
+                $array_media['Location'][0]['Geopoint'][0]['Longitude'] = $location_photo->__get("longitude");
+                $array_media['Location'][0]['Place'][0]['Name'] = $location_photo->__get("name");
+                $array_media['Location'][0]['Place'][0]['Address'] = $location_photo->__get("address");
+                $array_media['Location'][0]['Map'][0]['Image'] = $location_photo->__get("image");
 
-                $arrayNearest = array();
-                $length = count($jsonPlaces['data']);
-                $isFirst = true;
+                $array_nearest = array();
+                $length = count($json_places['data']);
+                $is_first = true;
                 for ($i = 0; $i < $length; $i++) {
-                    if($isFirst)
+                    if($is_first)
                     {
-                        //the first element is the same that receives getURLInstagramNearestPlaces and we used in the arrayMedia.
-                        $isFirst = false;
+                        //the first element is the same that receives getURLInstagramNearestPlaces and we used in the array_media.
+                        $is_first = false;
                     }
                     else
                     {
-                        $idPlace = $jsonPlaces['data'][$i]['id'];
-                        $latitudePlace = $jsonPlaces['data'][$i]['latitude'];
-                        $longitudePlace = $jsonPlaces['data'][$i]['longitude'];
-                        $namePlace = $jsonPlaces['data'][$i]['name'];
-                        $addressPlace = $this->getAddressByLatitudeLongitude($latitudePlace,$longitudePlace);
-                        $imagePlace = $this->getURLMapRelation($latitudePhoto,$longitudePhoto,$latitudePlace,$longitudePlace);
+                        $id_place = $json_places['data'][$i]['id'];
+                        $latitude_place = $json_places['data'][$i]['latitude'];
+                        $longitude_place = $json_places['data'][$i]['longitude'];
+                        $name_place = $json_places['data'][$i]['name'];
+                        $address_place = $this->getAddressByLatitudeLongitude($latitude_place,$longitude_place);
+                        $image_place = $this->getURLMapRelation($latitude_photo,$longitude_photo,$latitude_place,$longitude_place);
 
-                        $locationPlace = new location($idPlace,$latitudePlace,$longitudePlace,$namePlace,$addressPlace,$imagePlace);
-                        $arrayMyNearest = array();
-                        $arrayMyNearest['Location'][0]['Id'] = $locationPlace->__get("id");
-                        $arrayMyNearest['Location'][0]['Geopoint'][0]['Latitude'] = $locationPlace->__get("latitude");
-                        $arrayMyNearest['Location'][0]['Geopoint'][0]['Longitude'] = $locationPlace->__get("longitude");
-                        $arrayMyNearest['Location'][0]['Place'][0]['Name'] = $locationPlace->__get("name");
-                        $arrayMyNearest['Location'][0]['Place'][0]['Address'] = $locationPlace->__get("address");
-                        $arrayMyNearest['Location'][0]['Map'][0]['Image'] = $locationPlace->__get("image");
+                        $location_place = new location($id_place,$latitude_place,$longitude_place,$name_place,$address_place,$image_place);
+                        $array_my_nearest = array();
+                        $array_my_nearest['Location'][0]['Id'] = $location_place->__get("id");
+                        $array_my_nearest['Location'][0]['Geopoint'][0]['Latitude'] = $location_place->__get("latitude");
+                        $array_my_nearest['Location'][0]['Geopoint'][0]['Longitude'] = $location_place->__get("longitude");
+                        $array_my_nearest['Location'][0]['Place'][0]['Name'] = $location_place->__get("name");
+                        $array_my_nearest['Location'][0]['Place'][0]['Address'] = $location_place->__get("address");
+                        $array_my_nearest['Location'][0]['Map'][0]['Image'] = $location_place->__get("image");
 
-                        array_push($arrayNearest, $arrayMyNearest);
+                        array_push($array_nearest, $array_my_nearest);
                     }
                 }
-                $arrayMedia['General Map'][0]['Image'] = $this->getAllGeopointsURLMap($arrayMedia,$arrayNearest);
-                $arrayMedia['Nearest Places'] = $arrayNearest;
+                $array_media['General Map'][0]['Image'] = $this->getAllGeopointsURLMap($array_media,$array_nearest);
+                $array_media['Nearest Places'] = $array_nearest;
             }
             else
             {
@@ -90,7 +92,7 @@ class MediaController
         {
             throw new Exception("An error ocurred getting the id photo of instagram.");
         }
-        return new JsonResponse($arrayMedia);
+        return new JsonResponse($array_media);
     }
 
     /***
@@ -100,8 +102,9 @@ class MediaController
     ***/
     private function getURLInstagramPhoto($id)
     {
-        $urlPhoto = "https://api.instagram.com/v1/tags/nofilter/media/recent?client_id=5fa500be04134056ab745cc48cf0382f&max_tag_id=" . $id;
-        return $urlPhoto;
+        //$url_photo = "https://api.instagram.com/v1/tags/nofilter/media/recent?client_id=5fa500be04134056ab745cc48cf0382f&max_tag_id=" . $id;
+        $url_photo = "https://api.instagram.com/v1/tags/nofilter/media/recent?client_id=". $this->token_id ."&max_tag_id=" . $id;
+        return $url_photo;
     }
 
     /***
@@ -111,8 +114,9 @@ class MediaController
     ***/
     private function getURLInstagramNearestPlaces($latitude, $longitude)
     {
-        $urlPlaces = "https://api.instagram.com/v1/locations/search?lat=". $latitude ."&lng=". $longitude ."&client_id=5fa500be04134056ab745cc48cf0382f";
-        return $urlPlaces;
+        //$url_places = "https://api.instagram.com/v1/locations/search?lat=". $latitude ."&lng=". $longitude ."&client_id=5fa500be04134056ab745cc48cf0382f";
+        $url_places = "https://api.instagram.com/v1/locations/search?lat=". $latitude ."&lng=". $longitude ."&client_id=" . $this->token_id;
+        return $url_places;
     }
 
     /***
@@ -123,8 +127,8 @@ class MediaController
     private function getAddressByLatitudeLongitude($latitude, $longitude)
     {
     	$client = new Client();
-		$urlAddress = $client->request('GET', "https://maps.googleapis.com/maps/api/geocode/json?latlng=".$latitude.",".$longitude."&sensor=true", ['verify' => false]);
-        $json = json_decode($urlAddress->getBody(), true);
+		$url_address = $client->request('GET', "https://maps.googleapis.com/maps/api/geocode/json?latlng=".$latitude.",".$longitude."&sensor=true", ['verify' => false]);
+        $json = json_decode($url_address->getBody(), true);
         $address = $json['results'][0]['formatted_address'];
         return $address;
     }
@@ -136,8 +140,8 @@ class MediaController
 
     private function getURLMapLocation($latitude, $longitude)
     {
-        $urlMap = "http://maps.googleapis.com/maps/api/staticmap?center=". $latitude .",". $longitude ."&zoom=15&scale=false&size=640x480&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C". $latitude. ",". $longitude;
-        return $urlMap;
+        $url_map = "http://maps.googleapis.com/maps/api/staticmap?center=". $latitude .",". $longitude ."&zoom=15&scale=false&size=640x480&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C". $latitude. ",". $longitude;
+        return $url_map;
     }
 
     /***
@@ -148,8 +152,8 @@ class MediaController
 
     private function getURLMapRelation($latitudePhoto, $longitudePhoto, $nearestLaditude, $nearestLongitude)
     {
-        $urlMap = "http://maps.googleapis.com/maps/api/staticmap?center=". $latitudePhoto.",".$longitudePhoto."&zoom=15&scale=false&size=640x480&path=color:0x0000ff|weight:5|".$latitudePhoto.",".$longitudePhoto."|".$nearestLaditude.",".$nearestLongitude."&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C".$latitudePhoto.",".$longitudePhoto."&markers=size:mid%7Ccolor:0x2dbd02%7Clabel:-%7C". $nearestLaditude. ",". $nearestLongitude;
-        return $urlMap;
+        $url_map = "http://maps.googleapis.com/maps/api/staticmap?center=". $latitudePhoto.",".$longitudePhoto."&zoom=15&scale=false&size=640x480&path=color:0x0000ff|weight:5|".$latitudePhoto.",".$longitudePhoto."|".$nearestLaditude.",".$nearestLongitude."&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C".$latitudePhoto.",".$longitudePhoto."&markers=size:mid%7Ccolor:0x2dbd02%7Clabel:-%7C". $nearestLaditude. ",". $nearestLongitude;
+        return $url_map;
     }
 
     /***
@@ -161,14 +165,14 @@ class MediaController
 
     private function getAllGeopointsURLMap($arrayMedia,$arrayNearest)
     {
-        $urlMap = "http://maps.googleapis.com/maps/api/staticmap?center=".$arrayMedia['Location'][0]['Geopoint'][0]['Latitude'].",".$arrayMedia['Location'][0]['Geopoint'][0]['Longitude']."&zoom=15&scale=false&size=640x480&maptype=roadmap&format=png&visual_refresh=true&";
-        $urlMap.= "markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C". $arrayMedia['Location'][0]['Geopoint'][0]['Latitude']. "," .$arrayMedia['Location'][0]['Geopoint'][0]['Longitude']. "&";
+        $url_map = "http://maps.googleapis.com/maps/api/staticmap?center=".$arrayMedia['Location'][0]['Geopoint'][0]['Latitude'].",".$arrayMedia['Location'][0]['Geopoint'][0]['Longitude']."&zoom=15&scale=false&size=640x480&maptype=roadmap&format=png&visual_refresh=true&";
+        $url_map.= "markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C". $arrayMedia['Location'][0]['Geopoint'][0]['Latitude']. "," .$arrayMedia['Location'][0]['Geopoint'][0]['Longitude']. "&";
 
         for($i = 0; $i < count($arrayNearest);$i++)
         {
-            $urlMap.= "markers=size:mid%7Ccolor:0x2dbd02%7Clabel:-%7C". $arrayNearest[$i]['Location'][0]['Geopoint'][0]['Latitude']. ",". $arrayNearest[$i]['Location'][0]['Geopoint'][0]['Longitude'] ."&";
+            $url_map.= "markers=size:mid%7Ccolor:0x2dbd02%7Clabel:-%7C". $arrayNearest[$i]['Location'][0]['Geopoint'][0]['Latitude']. ",". $arrayNearest[$i]['Location'][0]['Geopoint'][0]['Longitude'] ."&";
         }
-        $urlMap = rtrim($urlMap,"&");
-        return $urlMap;
+        $url_map = rtrim($url_map,"&");
+        return $url_map;
     }
 }
