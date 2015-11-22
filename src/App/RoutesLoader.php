@@ -8,20 +8,48 @@ class RoutesLoader
 {
     private $app;
 
-    public function __construct($app)
+    public function __construct(Application $app)
     {
         $this->app = $app;
         $this->instantiateControllers();
-
     }
 
     private function instantiateControllers()
     {
-    	$application = $this->app;
         $this->app['media.controller'] = $this->app->share(
             function ()
             {
-                return new Controllers\MediaController();
+                return new Controllers\MediaController(
+                	$this->app['information.photo.service'], $this->app['information.address.service'], $this->app['static.map.service'],$this->app['location']
+                	);
+            }
+        );
+
+        $this->app['information.photo.service'] = $this->app->share(
+            function ()
+            {
+                return new Services\InstagramInformationPhotoService();
+            }
+        );
+
+        $this->app['information.address.service'] = $this->app->share(
+            function ()
+            {
+                return new Services\GoogleInformationAddressService();
+            }
+        );
+
+        $this->app['static.map.service'] = $this->app->share(
+            function ()
+            {
+                return new Services\GoogleStaticMapService();
+            }
+        );
+
+        $this->app['location'] = $this->app->share(
+            function ()
+            {
+                return new Services\Location(null,null,null,null,null,null);
             }
         );
     }
