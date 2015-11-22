@@ -2,14 +2,12 @@
 
 namespace App\Controllers;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use GuzzleHttp\Client;
 use Exception;
 use App\Services\Location;
+use App\Services\InformationPhotoService;
 
 class MediaController
 {
-	private $token_id;
-
     public function __construct()
     {
 
@@ -20,24 +18,20 @@ class MediaController
     ***/
     public function getInformationPhotoById($id,$token_id)
     {
-    	$this->token_id = $token_id;
-        $client = new Client();
-		$url = $client->request('GET', $this->getURLInstagramPhoto($id), ['verify' => false]);
-		$json_org = json_decode((string)$url->getBody(), true);
+		$informationPhotoService = new InformationPhotoService();
+		$json_org = $informationPhotoService->getPhotoInformationFromService($id,$token_id);
         if($json_org['meta']['code'] == 200)
         {
             if(!is_null($json_org['data'][0]['location']))
             {
                 $latitude_photo = $json_org['data'][0]['location']['latitude'];
                 $longitude_photo = $json_org['data'][0]['location']['longitude'];
-
-				$url_places = $client->request('GET', $this->getURLInstagramNearestPlaces($latitude_photo,$longitude_photo), ['verify' => false]);
-                $json_places = json_decode((string)$url_places->getBody(), true);
+                $json_places = $informationPhotoService->getPhotoInformationFromServiceNearestPlaces($latitude_photo,$longitude_photo, $token_id);
 
                 $id_place_photo = $json_places['data'][0]['id'];
                 $name_place_photo = $json_places['data'][0]['name'];
-                $address_photo = $this->getAddressByLatitudeLongitude($latitude_photo,$longitude_photo);
-                $image_photo = $this->getURLMapLocation($latitude_photo,$longitude_photo);
+                $address_photo = $informationPhotoService->getAddressFromService($latitude_photo, $longitude_photo);
+                $image_photo = $informationPhotoService->getURLMapLocation($latitude_photo,$longitude_photo);
 
                 $location_photo = new location($id_place_photo,$latitude_photo,$longitude_photo,$name_place_photo,$address_photo,$image_photo);
                 $array_media = array();
@@ -65,8 +59,12 @@ class MediaController
                         $latitude_place = $json_places['data'][$i]['latitude'];
                         $longitude_place = $json_places['data'][$i]['longitude'];
                         $name_place = $json_places['data'][$i]['name'];
-                        $address_place = $this->getAddressByLatitudeLongitude($latitude_place,$longitude_place);
-                        $image_place = $this->getURLMapRelation($latitude_photo,$longitude_photo,$latitude_place,$longitude_place);
+                        $address_place = $informationPhotoService->getAddressFromService($latitude_place, $longitude_place);
+
+                        $aux_array_nearest_places = array();
+                        $aux_array_nearest_places[0]['Location'][0]['Geopoint'][0]['Latitude'] = $latitude_place;
+                        $aux_array_nearest_places[0]['Location'][0]['Geopoint'][0]['Longitude'] = $longitude_place;
+                        $image_place = $informationPhotoService->getURLMapRelation($latitude_photo,$longitude_photo,$aux_array_nearest_places);
 
                         $location_place = new location($id_place,$latitude_place,$longitude_place,$name_place,$address_place,$image_place);
                         $array_my_nearest = array();
@@ -80,7 +78,7 @@ class MediaController
                         array_push($array_nearest, $array_my_nearest);
                     }
                 }
-                $array_media['General Map'][0]['Image'] = $this->getAllGeopointsURLMap($array_media,$array_nearest);
+                $array_media['General Map'][0]['Image'] = $informationPhotoService->getURLMapRelation($latitude_photo,$longitude_photo,$array_nearest);
                 $array_media['Nearest Places'] = $array_nearest;
             }
             else
@@ -93,86 +91,5 @@ class MediaController
             throw new Exception("An error ocurred getting the id photo of instagram.");
         }
         return new JsonResponse($array_media);
-    }
-
-    /***
-        Method: getURLInstagramPhoto
-        Description: This method receives an ID photo from Instagram and returns a Json with a lot of information about the photo ID.
-        Example: location.
-    ***/
-    private function getURLInstagramPhoto($id)
-    {
-        //$url_photo = "https://api.instagram.com/v1/tags/nofilter/media/recent?client_id=5fa500be04134056ab745cc48cf0382f&max_tag_id=" . $id;
-        $url_photo = "https://api.instagram.com/v1/tags/nofilter/media/recent?client_id=". $this->token_id ."&max_tag_id=" . $id;
-        return $url_photo;
-    }
-
-    /***
-        Method: getURLInstagramNearestPlaces
-        Description: This method receives a photo's latitude and longitude from Instagram and returns a Json with information about the nearest places of the location that receive.
-        Example: latitude, longitude.
-    ***/
-    private function getURLInstagramNearestPlaces($latitude, $longitude)
-    {
-        //$url_places = "https://api.instagram.com/v1/locations/search?lat=". $latitude ."&lng=". $longitude ."&client_id=5fa500be04134056ab745cc48cf0382f";
-        $url_places = "https://api.instagram.com/v1/locations/search?lat=". $latitude ."&lng=". $longitude ."&client_id=" . $this->token_id;
-        return $url_places;
-    }
-
-    /***
-        Method: getAddressByLatitudeLongitude
-        Description: This method receives a place's latitude and longitude and returns a Json with information about this place.
-    ***/
-
-    private function getAddressByLatitudeLongitude($latitude, $longitude)
-    {
-    	$client = new Client();
-		$url_address = $client->request('GET', "https://maps.googleapis.com/maps/api/geocode/json?latlng=".$latitude.",".$longitude."&sensor=true", ['verify' => false]);
-        $json = json_decode($url_address->getBody(), true);
-        $address = $json['results'][0]['formatted_address'];
-        return $address;
-    }
-
-    /***
-        Method: getURLMapLocation
-        Description: This method receives a place's latitude and longitude and returns a URL from a Static map that marks that place.
-    ***/
-
-    private function getURLMapLocation($latitude, $longitude)
-    {
-        $url_map = "http://maps.googleapis.com/maps/api/staticmap?center=". $latitude .",". $longitude ."&zoom=15&scale=false&size=640x480&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C". $latitude. ",". $longitude;
-        return $url_map;
-    }
-
-    /***
-        Method: getURLMapRelation
-        Description: This method receives two different place's latitudes and longitudes. The first two coordinates will be used to center and mark the map.
-                     The other two will be used to mark the other place. This will be returned a static map that marks the main places on red and the other one on green and a line will be traced between this two points marking the road.
-    ***/
-
-    private function getURLMapRelation($latitudePhoto, $longitudePhoto, $nearestLaditude, $nearestLongitude)
-    {
-        $url_map = "http://maps.googleapis.com/maps/api/staticmap?center=". $latitudePhoto.",".$longitudePhoto."&zoom=15&scale=false&size=640x480&path=color:0x0000ff|weight:5|".$latitudePhoto.",".$longitudePhoto."|".$nearestLaditude.",".$nearestLongitude."&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C".$latitudePhoto.",".$longitudePhoto."&markers=size:mid%7Ccolor:0x2dbd02%7Clabel:-%7C". $nearestLaditude. ",". $nearestLongitude;
-        return $url_map;
-    }
-
-    /***
-        Method: getAllGeopointsURLMap
-        Description: This method receives two Arrays. The first array contains information about the ID photo that we use in the getInformationPhotoById method.
-                     The other one contains information about the nearest places. The method will be returned a static map that marks the main place on red and the nearest places on green.
-
-    ***/
-
-    private function getAllGeopointsURLMap($arrayMedia,$arrayNearest)
-    {
-        $url_map = "http://maps.googleapis.com/maps/api/staticmap?center=".$arrayMedia['Location'][0]['Geopoint'][0]['Latitude'].",".$arrayMedia['Location'][0]['Geopoint'][0]['Longitude']."&zoom=15&scale=false&size=640x480&maptype=roadmap&format=png&visual_refresh=true&";
-        $url_map.= "markers=size:mid%7Ccolor:0xff3900%7Clabel:A%7C". $arrayMedia['Location'][0]['Geopoint'][0]['Latitude']. "," .$arrayMedia['Location'][0]['Geopoint'][0]['Longitude']. "&";
-
-        for($i = 0; $i < count($arrayNearest);$i++)
-        {
-            $url_map.= "markers=size:mid%7Ccolor:0x2dbd02%7Clabel:-%7C". $arrayNearest[$i]['Location'][0]['Geopoint'][0]['Latitude']. ",". $arrayNearest[$i]['Location'][0]['Geopoint'][0]['Longitude'] ."&";
-        }
-        $url_map = rtrim($url_map,"&");
-        return $url_map;
     }
 }
