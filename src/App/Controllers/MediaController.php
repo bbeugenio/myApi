@@ -30,17 +30,17 @@ class MediaController
     ***/
     public function getInformationPhotoById($id,$token_id)
     {
-		$json_org = $this->iInformationPhotoService ->getPhotoInformationFromService($id,$token_id);
-        if($json_org['meta']['code'] == 200)
+		$location_array_org = $this->iInformationPhotoService ->getPhotoInformationFromService($id,$token_id);
+        if($this->iInformationPhotoService->__get("code"))
         {
-            if(!is_null($json_org['data'][0]['location']))
+            if(!is_null($location_array_org) && !is_null($location_array_org))
             {
-                $latitude_photo = $json_org['data'][0]['location']['latitude'];
-                $longitude_photo = $json_org['data'][0]['location']['longitude'];
-                $json_places = $this->iInformationPhotoService->getPhotoInformationFromServiceNearestPlaces($latitude_photo,$longitude_photo, $token_id);
+                $latitude_photo = $location_array_org[0]['latitude'];
+                $longitude_photo = $location_array_org[0]['longitude'];
+                $array_places = $this->iInformationPhotoService->getPhotoInformationFromServiceNearestPlaces($latitude_photo,$longitude_photo, $token_id);
 
-                $id_place_photo = $json_places['data'][0]['id'];
-                $name_place_photo = $json_places['data'][0]['name'];
+                $id_place_photo = $array_places[0]['id'];
+                $name_place_photo = $array_places[0]['name'];
                 $address_photo = $this->iInformationAddressService->getAddressFromService($latitude_photo, $longitude_photo);
                 $image_photo = $this->iStaticMapService->getURLMapLocation($latitude_photo,$longitude_photo);
 
@@ -62,7 +62,7 @@ class MediaController
                 $array_media['Location'][0]['Map'][0]['Image'] = $location_photo->__get("image");
 
                 $array_nearest = array();
-                $length = count($json_places['data']);
+                $length = count($array_places);
                 $is_first = true;
                 for ($i = 0; $i < $length; $i++) {
                     if($is_first)
@@ -72,10 +72,10 @@ class MediaController
                     }
                     else
                     {
-                        $id_place = $json_places['data'][$i]['id'];
-                        $latitude_place = $json_places['data'][$i]['latitude'];
-                        $longitude_place = $json_places['data'][$i]['longitude'];
-                        $name_place = $json_places['data'][$i]['name'];
+                        $id_place = $array_places[$i]['id'];
+                        $latitude_place = $array_places[$i]['latitude'];
+                        $longitude_place = $array_places[$i]['longitude'];
+                        $name_place = $array_places[$i]['name'];
                         $address_place = $this->iInformationAddressService->getAddressFromService($latitude_place, $longitude_place);
 
                         $aux_array_nearest_places = array();
