@@ -3,6 +3,7 @@
 namespace App;
 
 use Silex\Application;
+use GuzzleHttp\Client;
 
 class RoutesLoader
 {
@@ -28,7 +29,7 @@ class RoutesLoader
         $this->app['information.photo.service'] = $this->app->share(
             function ()
             {
-                return new Services\InstagramInformationPhotoService();
+                return new Services\InstagramInformationPhotoService(new Client());
             }
         );
 
