@@ -18,39 +18,34 @@ class RoutesLoader
     private function instantiateControllers()
     {
         $this->app['media.controller'] = $this->app->share(
-            function ()
-            {
+            function () {
                 return new Controllers\MediaController(
-                	$this->app['information.photo.service'], $this->app['information.address.service'], $this->app['static.map.service'],$this->app['location']
-                	);
+                    $this->app['information.photo.service'], $this->app['information.address.service'], $this->app['static.map.service'], $this->app['location']
+                    );
             }
         );
 
         $this->app['information.photo.service'] = $this->app->share(
-            function ()
-            {
+            function () {
                 return new Services\InstagramInformationPhotoService(new Client());
             }
         );
 
         $this->app['information.address.service'] = $this->app->share(
-            function ()
-            {
+            function () {
                 return new Services\GoogleInformationAddressService(new Client());
             }
         );
 
         $this->app['static.map.service'] = $this->app->share(
-            function ()
-            {
+            function () {
                 return new Services\GoogleStaticMapService();
             }
         );
 
         $this->app['location'] = $this->app->share(
-            function ()
-            {
-                return new Services\Location(null,null,null,null,null,null);
+            function () {
+                return new Services\Location(null, null, null, null, null, null);
             }
         );
     }
@@ -63,4 +58,3 @@ class RoutesLoader
         $this->app->mount($this->app["api.endpoint"].'/', $api);
     }
 }
-

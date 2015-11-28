@@ -14,7 +14,7 @@ define("ROOT_PATH", __DIR__ . "/..");
 
 $app->register(new ServiceControllerServiceProvider());
 
-$app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . "/storage/cache",));
+$app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . "/storage/cache", ));
 
 $app->register(new MonologServiceProvider(), array(
     "monolog.logfile" => ROOT_PATH . "/storage/logs/" . Carbon::now('America/Argentina/Cordoba')->format("Y-m-d") . ".log",

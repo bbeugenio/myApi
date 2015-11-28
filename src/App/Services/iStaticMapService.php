@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-
 interface iStaticMapService
 {
     public function getURLMapLocation($latitude, $longitude);
