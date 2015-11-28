@@ -36,7 +36,7 @@ class RoutesLoader
         $this->app['information.address.service'] = $this->app->share(
             function ()
             {
-                return new Services\GoogleInformationAddressService();
+                return new Services\GoogleInformationAddressService(new Client());
             }
         );
 
