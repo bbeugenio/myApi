@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Entities;
 
 class Location extends Geopoint
 {

@@ -19,10 +19,10 @@ class GoogleStaticMapService implements iStaticMapService
         $this->json = null;
     }
 
-    /***
-        Method: getURLMapLocation
-        Description: This method receives a place's latitude and longitude and returns a URL from a Static map that marks that place.
-    ***/
+    /**
+     *	getURLMapLocation's method.
+     *  This method receives a place's latitude and longitude and returns a URL from a Static map that marks that place.
+     */
 
     public function getURLMapLocation($latitude, $longitude)
     {
@@ -30,12 +30,11 @@ class GoogleStaticMapService implements iStaticMapService
         return $this->url;
     }
 
-    /***
-        Method: getURLMapRelation
-        Description: This method receives latitude and longitude that they will be the principal coordinates.
-                     Also receives an array of the Nearest Places.
-                     The method will return a static map that marks the main place on red and the nearest places on green.
-    ***/
+    /**
+     *	getURLMapRelation's method.
+     *  This method receives latitude and longitude that they will be the principal coordinates. Also receives an array of the Nearest Places.
+     *  The method will return a static map that marks the main place on red and the nearest places on green.
+     */
 
     public function getURLMapRelation($principal_latitude, $principal_longitude, $arrayNearestPlaces)
     {

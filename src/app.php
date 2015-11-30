@@ -5,7 +5,6 @@ use Silex\Provider\HttpCacheServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\MonologServiceProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\RoutesLoader;
 use Carbon\Carbon;
 
 date_default_timezone_set('America/Argentina/Cordoba');

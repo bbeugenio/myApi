@@ -1,15 +1,15 @@
 <?php
 
-namespace Tests\Services;
+namespace Tests\Entities;
 
-use App\Services\Location;
+use App\Entities\Location;
 
 class LocationTest extends \PHPUnit_Framework_TestCase
 {
-    /***
-        Method: testLocationClass
-        Description: This method test that location's constructor, the set and get method are working fine.
-    ***/
+    /**
+     *	testLocationClass' method.
+     *  This method test that location's constructor, the set and get method are working fine.
+     */
     public function testLocationClass()
     {
         $olapic_id = "X5000GXB";

@@ -12,10 +12,10 @@ You need at least php **5.4.** and [Composer](https://getcomposer.org)
     composer install 
     php -S localhost:9001 -t web/
     
-Your api is now available at http://localhost:9001/myApi/
+Your api is now available at http://localhost:9001/media/
 
 ####Unit tests
-This is also my first experience using [phpunit](https://github.com/sebastianbergmann/phpunit). I made some tests and all the Services and Controllers classes are fully tested.
+This is also my first experience using [phpunit](https://github.com/sebastianbergmann/phpunit) and [mockery](https://github.com/padraic/mockery). I made some tests, not all the classes are tested, only a few and some services like Instagram and Google Services.
 
 From the root folder run the following command to run tests.
     
@@ -25,7 +25,10 @@ From the root folder run the following command to run tests.
 ####What you will get
 The api will respond to
 	
-	GET	->	http://localhost:9001/myApi/photo/{id}
+	GET	->	http://localhost:9001/media/{photo_id}?instagram_token=INSTAGRAM_TOKEN
+	GET	->	https://instagram.com/oauth/authorize/?client_id=5fa500be04134056ab745cc48cf0382f&redirect_uri=http://localhost:9001/token_info&response_type=token
+
+The second GET is to generate a new access token from instagram. This allow access to your Instagram's photos, in case that they aren't private.
 
 
 ####Contributing

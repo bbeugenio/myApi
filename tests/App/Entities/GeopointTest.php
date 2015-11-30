@@ -1,15 +1,15 @@
 <?php
 
-namespace Tests\Services;
+namespace Tests\Entities;
 
-use App\Services\Geopoint;
+use App\Entities\Geopoint;
 
 class GeopointTest extends \PHPUnit_Framework_TestCase
 {
-    /***
-        Method: testGeopointClass
-        Description: This method test that geopoint's constructor, the set and get method are working fine.
-    ***/
+    /**
+     *	testGeopointClass' method.
+     *  This method test that geopoint's constructor, the set and get method are working fine.
+     */
     public function testGeopointClass()
     {
         $olapic_latitude = "-31.4256195";

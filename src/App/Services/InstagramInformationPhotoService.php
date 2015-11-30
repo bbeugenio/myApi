@@ -38,38 +38,36 @@ class InstagramInformationPhotoService implements iInformationPhotoService
         return $this;
     }
 
-    /***
-        Method: getPhotoInformationFromService
-        Description: This method receives an ID photo and a token ID from Instagram and returns a Json with a lot of information about the photo ID.
-        Example: location.
-    ***/
+    /**
+     *	getPhotoInformationFromService's method.
+     *  This method receives an ID photo and a token ID from Instagram and returns an array with the location of the photo.
+     */
 
     public function getPhotoInformationFromService($id, $token_id)
     {
-        $this->url = "https://api.instagram.com/v1/tags/nofilter/media/recent?client_id=". $token_id ."&max_tag_id=" . $id;
+        $this->url = "https://api.instagram.com/v1/media/".$id."?access_token=" . $token_id;
         $this->service_response = $this->client->request('GET', $this->url, ['verify' => false]);
         $this->json = json_decode((string)$this->service_response->getBody(), true);
         $this->code = $this->json['meta']['code'];
         if ($this->json['meta']['code'] == 200) {
             $this->resultArray = null;
             $this->resultArray = null;
-            if (!is_null($this->json['data'][0]['location'])) {
-                $this->resultArray[0]['latitude'] = $this->json['data'][0]['location']['latitude'];
-                $this->resultArray[0]['longitude'] = $this->json['data'][0]['location']['longitude'];
+            if (!is_null($this->json['data']['location'])) {
+                $this->resultArray['latitude'] = $this->json['data']['location']['latitude'];
+                $this->resultArray['longitude'] = $this->json['data']['location']['longitude'];
             }
         }
         return $this->resultArray;
     }
 
-    /***
-        Method: getPhotoInformationFromServiceNearestPlaces
-        Description: This method receives a photo's latitude and longitude and a token ID from Instagram and returns a Json with information about the nearest places of the location that receive.
-        Example: latitude, longitude.
-    ***/
+    /**
+     *	getPhotoInformationFromServiceNearestPlaces' method.
+     *  This method receives a photo's latitude and longitude and a token ID from Instagram and returns an array with information about the nearest places of the location that receive.
+     */
 
-    public function getPhotoInformationFromServiceNearestPlaces($latitude, $longitude, $token_id)
+    public function getPhotoInformationFromServiceNearestPlaces($latitude, $longitude)
     {
-        $this->url = "https://api.instagram.com/v1/locations/search?lat=". $latitude ."&lng=". $longitude ."&client_id=" . $token_id;
+        $this->url = "https://api.instagram.com/v1/locations/search?lat=". $latitude ."&lng=". $longitude ."&client_id=5fa500be04134056ab745cc48cf0382f";
         $this->service_response = $this->client->request('GET', $this->url, ['verify' => false]);
         $this->json = json_decode((string)$this->service_response->getBody(), true);
         $this->code = $this->json['meta']['code'];

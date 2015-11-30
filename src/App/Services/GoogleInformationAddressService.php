@@ -34,10 +34,10 @@ class GoogleInformationAddressService implements iInformationAddressService
         return $this;
     }
 
-    /***
-        Method: getAddressFromService
-        Description: This method receives a place's latitude and longitude and returns its address.
-    ***/
+    /**
+     *	getAddressFromService's method.
+     *  This method receives a place's latitude and longitude and returns its address.
+     */
 
     public function getAddressFromService($latitude, $longitude)
     {

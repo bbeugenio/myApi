@@ -1,15 +1,15 @@
 <?php
 
-namespace Tests\Services;
+namespace Tests\Entities;
 
-use App\Services\Place;
+use App\Entities\Place;
 
 class PlaceTest extends \PHPUnit_Framework_TestCase
 {
-    /***
-        Method: testPlaceClass
-        Description: This method test that place's constructor, the set and get method are working fine.
-    ***/
+    /**
+     *	testPlaceClass' method.
+     *  This method test that place's constructor, the set and get method are working fine.
+     */
     public function testPlaceClass()
     {
         $olapic_name = "Olapic Argentina S.A";

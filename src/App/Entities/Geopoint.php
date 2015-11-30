@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Services;
+namespace App\Entities;
 
-class Place extends Map
+class Geopoint extends Place
 {
-    protected $name;
-    protected $address;
+    protected $latitude;
+    protected $longitude;
 
     public function __construct()
     {
-        $this->name = null;
-        $this->address = null;
+        $this->latitude = null;
+        $this->longitude = null;
     }
 
     public function __get($property)
